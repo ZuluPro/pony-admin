@@ -2,13 +2,13 @@ import os
 from django.contrib import admin
 from django.contrib.admin.options import csrf_protect_m
 from django.shortcuts import render, redirect
-from admin_storage.admin import BaseAdmin, ChangeList
-from admin_storage.storage.models import MediaStorageModel, StaticStorageModel
+from pony_admin.admin import BaseAdmin, ChangeList
+from pony_admin.storage.models import MediaStorageModel, StaticStorageModel
 
 
 class StorageAdmin(BaseAdmin):
     list_display = ['get_url_link']
-    change_list_template = 'admin_storage/changelist_storage.html'
+    change_list_template = 'pony_admin/storage/changelist.html'
     actions = ['delete_selected']
 
     def get_objects(self, request):
@@ -44,7 +44,7 @@ class StorageAdmin(BaseAdmin):
             file_ = request.FILES['file']
             self.model.storage.save(file_.name, file_)
             # TODO: Clear urls
-            return redirect('/admin/admin_storage/storage/')
+            return redirect('/admin/pony_admin/storage/')
         return render(request, self.change_form_template, {
         })
 
@@ -54,7 +54,7 @@ class StorageAdmin(BaseAdmin):
             for path in request.POST.getlist('_selected_action'):
                 self.model.storage.delete(path)
             return redirect(request.path)
-        return render(request, 'admin_storage/delete_selected_confirmation.html', {
+        return render(request, 'pony_admin/storage/delete_selected_confirmation.html', {
             'perms_lacking': False,
             'deletable_objects': request.POST.getlist('_selected_action'),
             'cl': ChangeList(request, self.model, self),

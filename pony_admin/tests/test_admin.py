@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
 from django.contrib import admin
-from admin_storage.tests.utils import IntModel, IntsAdmin
+from pony_admin.tests.utils import IntModel, IntsAdmin
 
 
 class RegisterAdminTest(TestCase):

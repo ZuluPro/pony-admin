@@ -1,10 +1,10 @@
-from admin_storage.admin import BaseAdmin
-from admin_storage.models import Model
+from pony_admin.admin import BaseAdmin
+from pony_admin.models import Model
 
 
 class IntModel(Model):
     class Meta:
-        app_label = 'admin_storage'
+        app_label = 'pony_admin'
         model_name = 'int'
         verbose_name_plural = 'ints'
 

@@ -11,7 +11,7 @@ Install
 Just: ::
     pip install pony-admin
 
-And add ``'admin_storage'`` in your ``settings.INSTALLED_APPS``
+And add ``'pony_admin'`` in your ``settings.INSTALLED_APPS``
 
 
 How to deal with
@@ -19,17 +19,17 @@ How to deal with
 
 Create a ``Model`` class for set common data of your datastore, example: ::
 
-    from admin_storage.models import Model
+    from pony_admin.models import Model
 
     class IntModel(Model):
         class Meta:
-            app_label = 'admin_storage'
+            app_label = 'pony_admin'
             model_name = 'int'
             verbose_name_plural = 'ints'
 
 Create a ``ModelAdmin`` class for set admin options: ::
 
-    from admin_storage.admin import BaseAdmin
+    from pony_admin.admin import BaseAdmin
 
     class IntsAdmin(BaseAdmin):
         list_display = ['as_float_from_admin', 'as_float_described']
@@ -61,11 +61,12 @@ for use them.
 Media storage
 ~~~~~~~~~~~~~
 
-Allow to navigate in directories, delete and add files. ::
+Allow to navigate in directories, delete and add files. Just add
+``'pony_admin.storage'`` in your ``settings.INSTALLED_APPS``::
 
     from django.contrib import admin
-    from admin_storage.storage.models import MediaStorageModel
-    from admin_storage.storage.admin import StorageAdmin
+    from pony_admin.storage.models import MediaStorageModel
+    from pony_admin.storage.admin import StorageAdmin
 
     admin.site.register([MediaStorageModel], StorageAdmin)
 
@@ -75,8 +76,8 @@ Static storage
 Same as Media storage but for static files. ::
 
     from django.contrib import admin
-    from admin_storage.storage.models import StaticStorageModel
-    from admin_storage.storage.admin import StorageAdmin
+    from pony_admin.storage.models import StaticStorageModel
+    from pony_admin.storage.admin import StorageAdmin
 
     admin.site.register([StaticStorageModel], StorageAdmin)
 
@@ -87,12 +88,12 @@ You can have any storage simply, just create a ``Model`` for it, for example:
 
 ::
 
-    from admin_storage.storage.models import BaseStorageModel
+    from pony_admin.storage.models import BaseStorageModel
 
     class MediaStorageModel(BaseStorageModel):
         storage = MyStorage()
 
         class Meta:
-            app_label = 'admin_storage'
+            app_label = 'pony_admin'
             model_name = 'my_storage'
             verbose_name_plural = 'my files'

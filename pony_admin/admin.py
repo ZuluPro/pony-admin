@@ -23,8 +23,8 @@ class ChangeList(object):
 
 class BaseAdmin(admin.ModelAdmin):
     list_display = []
-    change_list_template = 'admin_storage/changelist.html'
-    change_form_template = 'admin_storage/change_form.html'
+    change_list_template = 'pony_admin/changelist.html'
+    change_form_template = 'pony_admin/change_form.html'
 
     def get_objects(self, request):
         raise NotImplementedError('')

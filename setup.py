@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-import admin_storage
+import pony_admin
 
 
 def read_file(path):
@@ -8,13 +8,13 @@ def read_file(path):
 
 setup(
     name='django-admin-storage',
-    version=admin_storage.__version__,
-    url=admin_storage.__url__,
-    description=admin_storage.__doc__,
+    version=pony_admin.__version__,
+    url=pony_admin.__url__,
+    description=pony_admin.__doc__,
     long_description=read_file('README.rst'),
-    author=admin_storage.__author__,
-    author_email=admin_storage.__email__,
-    license=admin_storage.__license__,
+    author=pony_admin.__author__,
+    author_email=pony_admin.__email__,
+    license=pony_admin.__license__,
     platforms='any',
     zip_safe=False,
     classifiers=[
