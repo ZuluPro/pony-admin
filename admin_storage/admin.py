@@ -1,12 +1,14 @@
+import os
 from django.contrib import admin
 from django.http import HttpResponseBadRequest
-from django.db.models.options import Options, DEFAULT_NAMES
+from django.db.models.options import Options
 from django.core.files.storage import get_storage_class
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.options import csrf_protect_m
 from django.shortcuts import render, redirect
 from django.utils.six import with_metaclass
 from django.contrib.staticfiles.storage import StaticFilesStorage
+from django.utils.safestring import mark_safe
 
 
 media_storage = get_storage_class()()
@@ -28,13 +30,64 @@ class ChangeList(object):
         return []
 
 
-class StorageAdmin(admin.ModelAdmin):
+class BaseAdmin(admin.ModelAdmin):
+    list_display = []
     change_list_template = 'admin_storage/changelist.html'
     change_form_template = 'admin_storage/change_form.html'
-    actions = ['delete_selected']
+
+    def get_objects(self, request):
+        raise NotImplementedError('')
 
     def has_module_permission(self, request):
         return True
+
+    @staticmethod
+    def check(model):
+        return []
+
+    def _get_field_value(self, field_name, instance):
+        for obj in (self, self.model, instance):
+            if hasattr(obj, field_name):
+                value = getattr(obj, field_name)
+                break
+            elif isinstance(obj, dict) and field_name in obj:
+                value = obj[field_name]
+                break
+        if hasattr(value, '__call__'):
+            try:
+                value = value()
+            except TypeError:
+                value = value(instance)
+        if getattr(value, 'allow_tags', False):
+            value = mark_safe(value)
+        return value
+
+    def _get_field_name(self, field_name):
+        for obj in (self, self.model):
+            if hasattr(obj, field_name):
+                value = getattr(obj, field_name)
+                break
+            elif isinstance(obj, dict) and field_name in obj:
+                value = obj[field_name]
+                break
+        if hasattr(value, 'short_description'):
+            return value.short_description
+        return field_name
+
+    def get_results(self, request):
+        results = {'names': [], 'rows': []}
+        results['names'] = [self._get_field_name(name)
+                            for name in self.list_display]
+        objects = self.get_objects(request)
+        for obj in objects:
+            values = [obj]
+            for field in self.list_display:
+                values.append(self._get_field_value(field, obj))
+            results['rows'].append(values)
+        return results
+
+    def _get_changelist_context(self, request):
+        return {}
 
     @csrf_protect_m
     def changelist_view(self, request, extra_context=None):
@@ -46,16 +99,47 @@ class StorageAdmin(admin.ModelAdmin):
             return action(request)
 
         cl = ChangeList(request, self.model, self)
-        path = request.GET.get('path', '')
-        storage = self.model.storage
-        return render(request, self.change_list_template, {
+        context = self._get_changelist_context(request)
+        context.update({
             'cl': cl,
-            'path': path,
-            'storage': storage,
-            'files': storage.listdir(path),
+            'results': self.get_results(request),
             'action_form': self.action_form,
             'has_add_permission': True,
         })
+        return render(request, self.change_list_template, context)
+
+
+class StorageAdmin(BaseAdmin):
+    list_display = ['get_url_link']
+    change_list_template = 'admin_storage/changelist_storage.html'
+    actions = ['delete_selected']
+
+    def get_objects(self, request):
+        path = request.GET.get('path', '')
+        objs = self.model.storage.listdir(path)
+        dirs = [{'type': 'directory', 'name': name,
+                 'url': self.model.storage.url(os.path.join(path, name)),
+                 'path': os.path.join(path, name)}
+                for name in objs[0]]
+        files = [{'type': 'file', 'name': name,
+                  'url': self.model.storage.url(os.path.join(path, name)),
+                  'path': os.path.join(path, name)}
+                 for name in objs[1]]
+        return dirs + files
+
+    def get_url_link(self, obj):
+        if obj['type'] == 'directory':
+            return '<a href="?path={path}">{name}/</a>'.format(**obj)
+        return '<a href="{url}">{name}</a>'.format(**obj)
+    get_url_link.allow_tags = True
+    get_url_link.short_description = 'URL'
+
+    def _get_changelist_context(self, request):
+        return {
+            'path': request.GET.get('path', ''),
+            'storage': self.model.storage,
+            'files': self.get_objects(request),
+        }
 
     @csrf_protect_m
     def add_view(self, request):

@@ -59,28 +59,34 @@
         <div class="text"><span><input type="checkbox" id="action-toggle" style="display: inline-block;"></span></div>
         <div class="clear"></div>
        </th>
-       <th scope="col" class="column-__str__">
-        <div class="text"><span>{% trans "Files" %}</span></div>
-        <div class="clear"></div>
-       </th>
+       {% block names %}
+       {% for name in results.names %}
+        <th scope="col" class="column-{{ name }}">
+         <div class="text"><span>{{ name }}</span></div>
+         <div class="clear"></div>
+        </th>
+       {% endfor %}
+       {% endblock names %}
       </tr>
      </thead>
      <tbody>
-      {% if path %}
-       <tr class="row1"><td></td><th class="field-__str__"><a href="?path={{ path|parent_dir }}">..</a></th></tr>
-      {% endif %}
-      {% for directory in files.0 %}
-      <tr class="row1"><td></td><th class="field-__str__"><a href="?path={{ path }}{% if path %}/{% endif %}{{ directory }}">{{ directory }}/</a></th></tr>
+      {% block rows %}
+      {% for row in results.rows %}
+       <tr>
+        <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ row.1 }}"></td>
+        {% for value in row|slice:"1:" %}
+
+        <td>{{ value|safe }}</td>
+        {% endfor %}
+       </tr>
       {% endfor %}
-      {% for file in files.1 %}
-      <tr class="{% cycle 'row2' 'row1' %}"><td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ path }}{% if path %}/{% endif %}{{ file }}"></td><th class="field-__str__"><a href="{% storage_url %}">{{ file }}</a></th></tr>
-      {% endfor %}
+      {% endblock rows %}
      </tbody>
     </table>
    </div>
    <p class="paginator">
-    {% blocktrans with directories=files.0|length files=files.1|length%}
-    {{ directories }} directories and {{ files }} files
+    {% blocktrans with count=results.rows|length %}
+    {{ count }} element(s)
     {% endblocktrans %}
    </p>
   </form>

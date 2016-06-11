@@ -1,0 +1,21 @@
+{% extends "admin_storage/changelist.html" %}
+{% load i18n storage_list %}
+
+{% block rows %}
+{% if path %}
+ <tr class="row1"><td></td><th><a href="?path={{ path|parent_dir }}">..</a></th></tr>
+{% endif %}
+{% for row in results.rows %}
+<tr class="row{% if row.0.type == 'directory' %}1{% else %}2{% endif %}">
+  {% if row.0.type == 'file' %}
+  <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ row.0.path }}"></td>
+  {% else %}
+  <td></td>
+  {% endif %}
+  {% for value in row|slice:"1:" %}
+
+  <td>{{ value|safe }}</td>
+  {% endfor %}
+ </tr>
+{% endfor %}
+{% endblock rows %}
