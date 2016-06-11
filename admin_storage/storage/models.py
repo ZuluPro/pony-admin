@@ -1,16 +1,15 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.files.storage import get_storage_class
 from django.contrib.staticfiles.storage import StaticFilesStorage
-from django.utils.six import with_metaclass
-from admin_storage.models import ModelBase
+from admin_storage.models import Model
 
 
-class BaseStorageModel(with_metaclass(ModelBase)):
+class BaseStorageModel(Model):
     storage = None
 
     class Meta(object):
         app_label = 'admin_storage'
-        abstract = False
+        abstract = True
 
 
 class MediaStorageModel(BaseStorageModel):

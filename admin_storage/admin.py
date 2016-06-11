@@ -44,6 +44,8 @@ class BaseAdmin(admin.ModelAdmin):
             elif isinstance(obj, dict) and field_name in obj:
                 value = obj[field_name]
                 break
+        else:
+            value = None
         if hasattr(value, '__call__'):
             try:
                 value = value()

@@ -1,4 +1,5 @@
 from django.db.models.options import Options
+from django.utils.six import with_metaclass
 
 
 class ModelBase(type):
@@ -18,10 +19,11 @@ class ModelBase(type):
 
         # Create _meta attribute
         new_class._meta = Options(new_meta, app_label=app_label)
-        for attr_name, attr in attr_meta.__dict__.items():
-            if attr_name.startswith('_'):
-                continue
-            setattr(new_class._meta, attr_name, attr)
+        if attr_meta:
+            for attr_name, attr in attr_meta.__dict__.items():
+                if attr_name.startswith('_'):
+                    continue
+                setattr(new_class._meta, attr_name, attr)
         # Put class attrs
         for attr_name, attr in attrs.items():
             setattr(new_class, attr_name, attr)
@@ -35,3 +37,7 @@ class ModelBase(type):
 
     def get_change_permission(self):
         return 'change_%s' % self.model_name
+
+
+class Model(with_metaclass(ModelBase)):
+    pass
