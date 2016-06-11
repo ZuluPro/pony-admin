@@ -1,0 +1,89 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls admin_static admin_list storage_list %}
+
+
+{% block extrahead %}
+{{ block.super }}
+{{ media.js }}
+{% if action_form %}{% if actions_on_top or actions_on_bottom %}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        $("tr input.action-select").actions();
+    });
+})(django.jQuery);
+</script>
+{% endif %}{% endif %}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-list{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a>
+&rsaquo; {{ cl.opts.verbose_name_plural|capfirst }}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block coltype %}flex{% endblock %}
+
+{% block content %}
+<div id="content-main">
+ <div class="module" id="changelist">
+  <form id="changelist-form" action="" method="post" novalidate="">
+   {% csrf_token %} 
+   <div class="actions">
+    <label>Action:
+     <select name="action">
+      <option value="" selected="selected">---------</option>
+      <option value="delete_selected">{% trans "Delete selected files" %}</option>
+     </select>
+    </label>
+    <input class="select-across" name="select_across" type="hidden" value="0">
+    <button type="submit" class="button" title="Run the selected action" name="index" value="0">Go</button>
+
+    <script type="text/javascript">var _actions_icnt="0";</script>
+    <span class="action-counter" style="display: inline;">0 of 2 selected</span>
+    
+
+   </div>
+
+   <div class="results">
+    <table id="result_list">
+     <thead>
+      <tr>
+       <th scope="col" class="action-checkbox-column">
+        <div class="text"><span><input type="checkbox" id="action-toggle" style="display: inline-block;"></span></div>
+        <div class="clear"></div>
+       </th>
+       <th scope="col" class="column-__str__">
+        <div class="text"><span>{% trans "Files" %}</span></div>
+        <div class="clear"></div>
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      {% if path %}
+       <tr class="row1"><td></td><th class="field-__str__"><a href="?path={{ path|parent_dir }}">..</a></th></tr>
+      {% endif %}
+      {% for directory in files.0 %}
+      <tr class="row1"><td></td><th class="field-__str__"><a href="?path={{ path }}{% if path %}/{% endif %}{{ directory }}">{{ directory }}/</a></th></tr>
+      {% endfor %}
+      {% for file in files.1 %}
+      <tr class="{% cycle 'row2' 'row1' %}"><td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ path }}{% if path %}/{% endif %}{{ file }}"></td><th class="field-__str__"><a href="{% storage_url %}">{{ file }}</a></th></tr>
+      {% endfor %}
+     </tbody>
+    </table>
+   </div>
+   <p class="paginator">
+    {% blocktrans with directories=files.0|length files=files.1|length%}
+    {{ directories }} directories and {{ files }} files
+    {% endblocktrans %}
+   </p>
+  </form>
+ </div>
+</div>
+{% endblock %}
