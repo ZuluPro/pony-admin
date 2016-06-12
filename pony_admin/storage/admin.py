@@ -1,6 +1,7 @@
 import os
 from django.contrib.admin.options import csrf_protect_m
 from django.shortcuts import render, redirect
+from django.utils.translation import ugettext_lazy as _
 from pony_admin.admin import BaseAdmin, ChangeList
 
 
@@ -69,6 +70,7 @@ class StorageAdmin(BaseAdmin):
             'cl': ChangeList(request, self.model, self),
             'action_checkbox_name': '_selected_action',
         })
+    delete_selected.short_description = _("Delete selected files")
 
     def _get_urls(self):
         from django.conf.urls import url
@@ -79,5 +81,3 @@ class StorageAdmin(BaseAdmin):
             url(r'^(.+)/delete/$', self._wrap_view(self.delete_view), name='%s_%s_delete' % info),
         ]
         return urlpatterns
-
-# admin.site.register([MediaStorageModel, StaticStorageModel], StorageAdmin)

@@ -2,8 +2,8 @@ Pony Admin
 ==========
 
 Pony Admin helps you to add any objects in Django Admin interface. Get what
-you want sorted with models, media, static or files from any storage, data
-from cache or whatever.
+you want sorted like models: media, static or files from any storage, data
+from cache, ``ps`` results or any resource listing. Give them simply a WebUI.
 
 Install
 -------

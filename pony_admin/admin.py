@@ -84,6 +84,8 @@ class BaseAdmin(admin.ModelAdmin):
             elif isinstance(obj, dict) and field_name in obj:
                 value = obj[field_name]
                 break
+        else:
+            return field_name
         if hasattr(value, 'short_description'):
             return value.short_description
         return field_name
@@ -117,6 +119,7 @@ class BaseAdmin(admin.ModelAdmin):
 
         context = self._get_changelist_context(request)
         context.update({
+            'actions': self.get_actions(),
             'results': self.get_results(request),
             'action_form': self.action_form,
             'has_add_permission': True,
@@ -144,3 +147,6 @@ class BaseAdmin(admin.ModelAdmin):
             # url(r'^(.+)/$', wrap(self.change_view), name='%s_%s_change' % info),
         ] + self._get_urls()
         return urlpatterns
+
+    def get_actions(self):
+        return [(name, self._get_field_name(name)) for name in self.actions]

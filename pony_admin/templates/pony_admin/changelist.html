@@ -35,30 +35,34 @@
  <div class="module" id="changelist">
   <form id="changelist-form" action="" method="post" novalidate="">
    {% csrf_token %} 
-   <div class="actions">
-    <label>Action:
-     <select name="action">
-      <option value="" selected="selected">---------</option>
-      <option value="delete_selected">{% trans "Delete selected files" %}</option>
-     </select>
-    </label>
-    <input class="select-across" name="select_across" type="hidden" value="0">
-    <button type="submit" class="button" title="Run the selected action" name="index" value="0">Go</button>
+   {% if actions %}
+    <div class="actions">
+     <label>Action:
+      <select name="action">
+       <option value="" selected="selected">---------</option>
+       {% for action, verbose in actions %}
+       <option value="{{ action }}">{{ verbose }}</option>
+       {% endfor %}
+      </select>
+     </label>
+     <input class="select-across" name="select_across" type="hidden" value="0">
+     <button type="submit" class="button" title="Run the selected action" name="index" value="0">Go</button>
 
-    <script type="text/javascript">var _actions_icnt="0";</script>
-    <span class="action-counter" style="display: inline;">0 of 2 selected</span>
-    
-
-   </div>
+     <script type="text/javascript">var _actions_icnt="0";</script>
+     <span class="action-counter" style="display: inline;">0 of 2 selected</span>
+    </div>
+   {% endif %}
 
    <div class="results">
     <table id="result_list">
      <thead>
       <tr>
+       {% if actions %}
        <th scope="col" class="action-checkbox-column">
         <div class="text"><span><input type="checkbox" id="action-toggle" style="display: inline-block;"></span></div>
         <div class="clear"></div>
        </th>
+       {% endif %}
        {% block names %}
        {% for name in results.names %}
         <th scope="col" class="column-{{ name }}">
@@ -73,7 +77,9 @@
       {% block rows %}
       {% for row in results.rows %}
        <tr>
+        {% if actions %}
         <td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ row.1 }}"></td>
+        {% endif %}
         {% for value in row|slice:"1:" %}
 
         <td>{{ value|safe }}</td>
