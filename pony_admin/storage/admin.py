@@ -1,9 +1,7 @@
 import os
-from django.contrib import admin
 from django.contrib.admin.options import csrf_protect_m
 from django.shortcuts import render, redirect
 from pony_admin.admin import BaseAdmin, ChangeList
-from pony_admin.storage.models import MediaStorageModel, StaticStorageModel
 
 
 class StorageAdmin(BaseAdmin):
@@ -32,10 +30,20 @@ class StorageAdmin(BaseAdmin):
     get_url_link.short_description = 'URL'
 
     def _get_changelist_context(self, request):
+        path = request.GET.get('path', '')
+        paths = []
+        # Create breadcrumbs
+        if path:
+            path_ = path
+            while path_:
+                dir_path, file_path = os.path.split(path_)
+                paths.append([path_, file_path])
+                path_ = dir_path
         return {
-            'path': request.GET.get('path', ''),
+            'path': path,
             'storage': self.model.storage,
             'files': self.get_objects(request),
+            'paths': paths[::-1]
         }
 
     @csrf_protect_m
@@ -43,8 +51,9 @@ class StorageAdmin(BaseAdmin):
         if request.method == 'POST':
             file_ = request.FILES['file']
             self.model.storage.save(file_.name, file_)
-            # TODO: Clear urls
-            return redirect('/admin/pony_admin/storage/')
+            info = self.model._meta.app_label, self.model._meta.model_name
+            url_name = 'admin:%s_%s_changelist' % info
+            return redirect(url_name)
         return render(request, self.change_form_template, {
         })
 
@@ -61,5 +70,14 @@ class StorageAdmin(BaseAdmin):
             'action_checkbox_name': '_selected_action',
         })
 
+    def _get_urls(self):
+        from django.conf.urls import url
+        info = self.model._meta.app_label, self.model._meta.model_name
 
-admin.site.register([MediaStorageModel, StaticStorageModel], StorageAdmin)
+        urlpatterns = [
+            url(r'^add/$', self._wrap_view(self.add_view), name='%s_%s_add' % info),
+            url(r'^(.+)/delete/$', self._wrap_view(self.delete_view), name='%s_%s_delete' % info),
+        ]
+        return urlpatterns
+
+# admin.site.register([MediaStorageModel, StaticStorageModel], StorageAdmin)

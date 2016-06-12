@@ -1,6 +1,25 @@
 {% extends "pony_admin/changelist.html" %}
 {% load i18n pony_admin_storage %}
 
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=meta.app_label %}">{{ meta.app_label }}</a>
+{% if path %}
+&rsaquo; <a href="?path=">{{ meta.verbose_name_plural|capfirst }}</a>
+{% for dir_path, dir_name in paths %}
+{% if forloop.last %}
+&rsaquo; {{ dir_name }}
+{% else %}
+&rsaquo; <a href="?path={{ dir_path }}">{{ dir_name }}</a>
+{% endif %}
+{% endfor %}
+{% else %}
+&rsaquo; {{ meta.verbose_name_plural|capfirst }}
+{% endif %}
+</div>
+{% endblock %}
+
 {% block rows %}
 {% if path %}
  <tr class="row1"><td></td><th><a href="?path={{ path|parent_dir }}">..</a></th></tr>
