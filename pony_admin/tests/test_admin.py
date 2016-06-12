@@ -21,14 +21,24 @@ class BaseAdminGetFieldValueTest(TestCase):
         result = modeladmin._get_field_value('as_float_from_admin', 2)
         self.assertEqual(result, 2.0)
 
+    def test_value_not_found(self):
+        modeladmin = IntsAdmin(IntModel, admin.site)
+        result = modeladmin._get_field_value('foo', IntModel())
+        self.assertEqual(result, None)
+
 
 class BaseAdminGetFieldNameTest(TestCase):
-    def test_get_from_admin(self):
+    def test_get_from_admin_method(self):
         modeladmin = IntsAdmin(IntModel, admin.site)
         result = modeladmin._get_field_name('as_float_from_admin')
         self.assertEqual(result, 'as_float_from_admin')
         result = modeladmin._get_field_name('as_float_described')
         self.assertEqual(result, 'Description')
+
+    def test_name_not_found(self):
+        modeladmin = IntsAdmin(IntModel, admin.site)
+        result = modeladmin._get_field_name('foo')
+        self.assertEqual(result, 'foo')
 
 
 class BaseAdminGetResultsTest(TestCase):
@@ -40,6 +50,12 @@ class BaseAdminGetResultsTest(TestCase):
 
 
 class BaseAdminChangeListViewTest(TestCase):
+    def setUp(self):
+        admin.site.register([IntModel], IntsAdmin)
+
+    def tearDown(self):
+        admin.site.unregister([IntModel])
+
     def test_changelist_view(self):
         req_factory = RequestFactory()
         request = req_factory.get('/')
