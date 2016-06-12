@@ -16,8 +16,8 @@
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="{% url 'admin:app_list' app_label='pony_admin' %}">{{ opts.app_config.verbose_name }}</a>
-&rsaquo; {% if has_change_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+&rsaquo; <a href="{% url 'admin:app_list' app_label=meta.app_label %}">{{ meta.app_label }}</a>
+&rsaquo; <a href="{{ changelist_url }}">{{ meta.verbose_name_plural|capfirst }}</a>
 &rsaquo; {% if add %}{% trans 'Add' %} {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}
 </div>
 {% endblock %}
@@ -51,7 +51,9 @@
 {% endif %}
 
 {% block field_sets %}
-<input type="file" name="file">
+{% for fieldset in adminform %}
+  {% include "admin/includes/fieldset.html" %}
+{% endfor %}
 {% endblock %}
 
 {% block after_related_objects %}{% endblock %}

@@ -3,11 +3,13 @@ from django.contrib.admin.options import csrf_protect_m
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 from pony_admin.admin import BaseAdmin, ChangeList
+from pony_admin.storage.forms import FileAddForm
 
 
 class StorageAdmin(BaseAdmin):
     list_display = ['get_url_link']
     change_list_template = 'pony_admin/storage/changelist.html'
+    change_form = FileAddForm
     actions = ['delete_selected']
 
     def get_objects(self, request):
@@ -47,16 +49,8 @@ class StorageAdmin(BaseAdmin):
             'paths': paths[::-1]
         }
 
-    @csrf_protect_m
-    def add_view(self, request):
-        if request.method == 'POST':
-            file_ = request.FILES['file']
-            self.model.storage.save(file_.name, file_)
-            info = self.model._meta.app_label, self.model._meta.model_name
-            url_name = 'admin:%s_%s_changelist' % info
-            return redirect(url_name)
-        return render(request, self.change_form_template, {
-        })
+    def _add(self, form):
+        self.model.storage.save(form.data['name'], form.files['file'])
 
     @csrf_protect_m
     def delete_selected(self, request):

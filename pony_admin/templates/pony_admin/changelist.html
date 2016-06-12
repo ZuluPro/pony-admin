@@ -32,6 +32,20 @@
 
 {% block content %}
 <div id="content-main">
+    {% block object-tools %}
+      {% if has_add_permission %}
+        <ul class="object-tools">
+          {% block object-tools-items %}
+            <li>
+              {% url meta|admin_urlname:'add' as add_url %}
+              <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+                {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+              </a>
+            </li>
+          {% endblock %}
+        </ul>
+      {% endif %}
+    {% endblock %}
  <div class="module" id="changelist">
   <form id="changelist-form" action="" method="post" novalidate="">
    {% csrf_token %} 

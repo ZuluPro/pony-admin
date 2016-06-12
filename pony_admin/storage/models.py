@@ -18,6 +18,7 @@ class MediaStorageModel(BaseStorageModel):
     class Meta:
         app_label = 'pony_admin'
         model_name = 'media'
+        verbose_name = _('media file')
         verbose_name_plural = _('media files')
 
 
@@ -27,4 +28,5 @@ class StaticStorageModel(BaseStorageModel):
     class Meta:
         app_label = 'pony_admin'
         model_name = 'static'
+        verbose_name = _('static file')
         verbose_name_plural = _('static files')
