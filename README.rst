@@ -9,6 +9,7 @@ Install
 -------
 
 Just: ::
+
     pip install pony-admin
 
 And add ``'pony_admin'`` in your ``settings.INSTALLED_APPS``
